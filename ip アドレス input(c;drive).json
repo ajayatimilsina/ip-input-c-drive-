@@ -1,0 +1,163 @@
+{
+  "name": "ip アドレス input(c;drive)",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "ba32323e-218c-45dc-bf90-8b5eb938185f",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "formTitle": "IP Search",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "search_number",
+              "fieldName": "search_number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "3f4ad6ab-8caf-4ec8-93bf-0dba84ad5b23",
+      "name": "On form submission",
+      "webhookId": "0f7d2638-36c5-496a-b031-9945638e07ec"
+    },
+    {
+      "parameters": {
+        "jsCode": "// यसले बिग्रेको कोलमबाट IP र मितिलाई सोझो र सफा बनाउँछ\nreturn items.map(item => {\n  const rawData = item.json;\n  const keys = Object.keys(rawData);\n  \n  return {\n    json: {\n      date: rawData['廃棄日'] || rawData[keys[0]] || \"\",\n      ip: rawData['IP Address'] || rawData[keys[1]] || Object.values(rawData).find(v => String(v).includes('.')) || \"\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "bad8a9f2-f7d8-455d-b639-5615ea297687",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "final-strict-match",
+              "leftValue": "={{ $json.ip?.split(\".\")[2] }}",
+              "rightValue": "={{ $('On form submission').item.json.search_number }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "a3547e7d-6f34-4560-8152-e03a02f4156e",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:/Users/PCS0077/.n8n-files/Ipアドレス0527.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        -16
+      ],
+      "id": "b1d0842e-7e6b-45ac-963d-0f0d0e5878c0",
+      "name": "Read/Write Files from Disk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b8ce65fe-397f-4006-a29f-b1eba701072b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14064b1662339992e021a02813d300dd1250e620ea9e2f06b98be904832066b3"
+  },
+  "id": "r3G4Fqd4neKcryyO",
+  "tags": []
+}
